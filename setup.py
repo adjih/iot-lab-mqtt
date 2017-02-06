@@ -59,6 +59,7 @@ ENTRY_POINTS = {
         # Server script
         'iotlab-mqtt-serial = iotlabmqtt.serial:main',
         'iotlab-mqtt-radiosniffer = iotlabmqtt.radiosniffer:main [sniffer]',
+        'iotlab-mqtt-resources = iotlabmqtt.resources:main [resources]',
 
         # Client script
         'iotlab-mqtt-clients = iotlabmqtt.clients:main',
@@ -67,6 +68,7 @@ ENTRY_POINTS = {
 
 EXTRAS_REQUIRE = {
     'sniffer': ['iotlabcli>=2.1.0'],
+    'resources': ['iotlabcli>=2.1.0'],
 }
 
 # Sum all dependecies in 'server'
