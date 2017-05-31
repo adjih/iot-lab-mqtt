@@ -208,6 +208,12 @@ Run given command for given process id. The process should currently be idle.
 
 :param command: ``utf-8`` encoded json list of arguments
 
+.. warning::
+   Care should be taken when running an *infinite running* process with **sudo**
+   as it cannot be killed by its original user. `Read more`_
+
+.. _Read more: https://www.reddit.com/r/linux/comments/2av912/how_does_sudo_get_signals_from_the_controlling/ciz574v/
+
 +-----------------------------------------------------------------------------+
 | ``run`` request:                                                            |
 +============+================================================================+
