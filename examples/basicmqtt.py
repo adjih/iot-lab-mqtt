@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 #---------------------------------------------------------------------------
 # Cedric Adjih - Inria - 2017
+#---------------------------------------------------------------------------
 
 import argparse
 import time
@@ -8,6 +9,9 @@ import sys
 sys.path.append("../")
 
 import iotlabmqtt.mqttcommon
+
+#---------------------------------------------------------------------------
+# Configuration
 
 DEFAULT_SERVER = "broker.hivemq.com"
 DEFAULT_PORT = 1883
@@ -25,6 +29,8 @@ print("mosquitto_sub -h {server} -p {port} -t {topic_to}"
 print("mosquitto_pub -h {server} -p {port} -t {topic_from} -l"
       .format(**vars(args)))
 
+#--------------------------------------------------
+# Actual code
 
 def handle_topic_from(message):
     print("{}> {}".format(message.topic, message.payload))
@@ -32,7 +38,6 @@ def handle_topic_from(message):
 topics = [iotlabmqtt.mqttcommon.Topic(args.topic_from, handle_topic_from)]
 client = iotlabmqtt.mqttcommon.MQTTClient(args.server, args.port, topics=topics)
 client.start()
-
 
 while True:
     msg = "hello %s" % time.time()
