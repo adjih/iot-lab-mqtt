@@ -16,26 +16,31 @@ from iotlabmqtt.clients import common as clientcommon
 
 #---------------------------------------------------------------------------
 
+COMMAND = "get-diff-time/{ref_time}"
+
 class SimpleShell(clientcommon.CmdShell):
     """Shell for the SimpleRequestServer"""
     
     def __init__(self, args):
-        super().__init__()
+        super(self.__class__, self).__init__()
         self.args = args
         self.get_time_client = mqttcommon.RequestClient(
-            args.topic, "get-time", clientid=str(uuid.uuid4()))
+            args.topic, COMMAND, clientid=str(uuid.uuid4()))
         self.mqtt = mqttcommon.MQTTClient(
             self.args.server, self.args.port, [self.get_time_client])
 
     #--------------------------------------------------
-    # Command 'time' (mqtt: 'get-time')
+    # Command 'difftime' (mqtt: 'get-diff-time')
     
-    def do_time(self, arg_list):
-        data = self.get_time_client.request(self.mqtt, b"...", timeout=0.5)
-        print("time: {}".format(data))
+    def do_difftime(self, arg_list):
+        ref_time_str = "{}".format(time.time())
+        data = self.get_time_client.request(
+            self.mqtt, b"...", ref_time = ref_time_str, timeout=2)
+        data_str = data.decode("utf-8")
+        print("time: {}".format(data_str))
     
-    def help_time(self):
-        print("time\n  Retrieve time from server (through mqtt)")
+    def help_difftime(self):
+        print("difftime\n  Retrieve time diff from server (through mqtt)")
     
     #--------------------------------------------------
         
@@ -54,7 +59,7 @@ DEFAULT_SERVER = "test.mosquitto.org"
 DEFAULT_PORT = 1883
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--topic", type=str, default = "/iotlabmqtt/test")
+parser.add_argument("--topic", type=str, default = "iotlabmqtt/test")
 parser.add_argument("--server", type=str, default=DEFAULT_SERVER)
 parser.add_argument("--port", type=int, default=DEFAULT_PORT)
 args = parser.parse_args()
