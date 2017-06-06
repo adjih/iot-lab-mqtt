@@ -1,6 +1,8 @@
 #! /usr/bin/python3
 #---------------------------------------------------------------------------
 # Cedric Adjih - Inria - 2017
+# Inspired from G.H.:
+# https://github.com/iot-lab/iot-lab-mqtt/blob/master/iotlabmqtt/clients/log.py
 #---------------------------------------------------------------------------
 
 import argparse
@@ -10,25 +12,41 @@ import uuid
 sys.path.append("../")
 
 from iotlabmqtt import mqttcommon
+from iotlabmqtt.clients import common as clientcommon
 
 #---------------------------------------------------------------------------
 
-class SimpleRequestClient(object):
+class SimpleShell(clientcommon.CmdShell):
+    """Shell for the SimpleRequestServer"""
     
     def __init__(self, args):
+        super().__init__()
         self.args = args
-        self.request_client = mqttcommon.RequestClient(
-            args.topic, args.command, clientid=str(uuid.uuid4()))
+        self.get_time_client = mqttcommon.RequestClient(
+            args.topic, "get-time", clientid=str(uuid.uuid4()))
         self.mqtt = mqttcommon.MQTTClient(
-            self.args.server, self.args.port, [self.request_client])
+            self.args.server, self.args.port, [self.get_time_client])
 
+    #--------------------------------------------------
+    # Command 'time' (mqtt: 'get-time')
+    
+    def do_time(self, arg_list):
+        data = self.get_time_client.request(self.mqtt, b"...", timeout=0.5)
+        print("time: {}".format(data))
+    
+    def help_time(self):
+        print("time\n  Retrieve time from server (through mqtt)")
+    
+    #--------------------------------------------------
+        
     def run(self):
         self.mqtt.start()
-        while True:
-            data = self.request_client.request(self.mqtt, b"...", timeout=0.5)
-            print("request-reply: {}".format(data))
-            time.sleep(1)
-
+        try:
+            self.cmdloop()
+        except KeyboardInterrupt:
+            pass
+        self.mqtt.stop()
+     
 #---------------------------------------------------------------------------
 # Configuration
 
@@ -37,7 +55,6 @@ DEFAULT_PORT = 1883
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--topic", type=str, default = "/iotlabmqtt/test")
-parser.add_argument("--command", type=str, default = "get-time")
 parser.add_argument("--server", type=str, default=DEFAULT_SERVER)
 parser.add_argument("--port", type=int, default=DEFAULT_PORT)
 args = parser.parse_args()
@@ -45,7 +62,7 @@ args = parser.parse_args()
 #--------------------------------------------------
 # Running
 
-server = SimpleRequestClient(args)
+server = SimpleShell(args)
 server.run()
 
 #---------------------------------------------------------------------------
