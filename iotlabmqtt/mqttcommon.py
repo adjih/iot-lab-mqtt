@@ -26,14 +26,19 @@ class MQTTClient(mqtt.Client):
 
     SUBSCRIBE_TIMEOUT = 10
 
-    def __init__(self, server, port, topics=None, config_file_name=None):
+    def __init__(self, server, port, topics=None,
+                 read_config=False, config_file_name=None):
         super().__init__()
 
-        self.extra_config = common.get_default_mqttsec_config(config_file_name)
-        print(server, port, self.extra_config)
-        if server == None and "broker" in self.extra_config:
+        if config_file_name is not None:
+            read_config = True
+        if read_config:
+            self.extra_config = common.get_default_mqttsec_config(
+                config_file_name)
+        else: self.extra_config = {}
+        if "broker" in self.extra_config:
             server = self.extra_config["broker"]
-        if port == None and "port" in self.extra_config:
+        if "port" in self.extra_config:
             port = self.extra_config["port"]
 
         self.server = server
@@ -174,6 +179,7 @@ class MQTTClient(mqtt.Client):
     def from_opts_dict(cls, broker, broker_port, **kw):
         """Create class from argparse entries."""
         return cls(broker, port=broker_port,
+                   read_config=kw.get("read_config", False),
                    config_file_name=kw.get("config", None))
 
 

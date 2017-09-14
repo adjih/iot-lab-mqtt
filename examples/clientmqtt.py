@@ -24,7 +24,9 @@ class SimpleRequestClient(object):
         self.request_client = mqttcommon.RequestClient(
             args.topic, COMMAND, clientid=str(uuid.uuid4()))
         self.mqtt = mqttcommon.MQTTClient(
-            self.args.server, self.args.port, [self.request_client])
+            self.args.server, self.args.port, [self.request_client],
+            read_config=self.args.read_config,
+            config_file_name=self.args.config)
 
     def run(self):
         self.mqtt.start()
@@ -47,6 +49,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--topic", type=str, default = "iotlabmqtt/test")
 parser.add_argument("--server", type=str, default=DEFAULT_SERVER)
 parser.add_argument("--port", type=int, default=DEFAULT_PORT)
+parser.add_argument("--read-config", action="store_true", default=False)
+parser.add_argument("--config", type=str, default=None)
 args = parser.parse_args()
 
 #--------------------------------------------------

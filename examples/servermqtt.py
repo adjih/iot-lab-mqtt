@@ -21,7 +21,9 @@ class SimpleRequestServer(object):
         request_server = mqttcommon.RequestServer(
             args.topic, COMMAND, callback=self.cmd_get_diff_time)
         self.mqtt = mqttcommon.MQTTClient(
-            self.args.server, self.args.port, [request_server])
+            self.args.server, self.args.port, [request_server],
+            read_config=self.args.read_config,
+            config_file_name=self.args.config)
 
     def cmd_get_diff_time(self, message, ref_time):
         print("request: topic={} request={} arg={}".format(
@@ -47,6 +49,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--topic", type=str, default = "iotlabmqtt/test")
 parser.add_argument("--server", type=str, default=DEFAULT_SERVER)
 parser.add_argument("--port", type=int, default=DEFAULT_PORT)
+parser.add_argument("--read-config", action="store_true", default=False)
+parser.add_argument("--config", type=str, default=None)
 args = parser.parse_args()
 
 #--------------------------------------------------
