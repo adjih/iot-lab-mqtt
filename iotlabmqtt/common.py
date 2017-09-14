@@ -14,6 +14,80 @@ import hashlib
 import signal
 import string
 import argparse
+import ConfigParser
+
+CONFIG_VAR ="MQTTSEC_CONFIG"
+DEFAULT_CONFIG_FILE = "mqttsec.cfg"
+DEFAULT_HOME_CONFIG_FILE = "~/.mqttsec.cfg"
+
+#DEFAULT_MQTT_PORT = 1883
+DEFAULT_MQTT_SECURE_PORT = 8883
+
+def get_default_mqttsec_config(mqttsec_file_name=None):
+    """Get MQTT configuration config parameters from a configuration file.
+
+The following files are read: `mqttsec_file_name' argument (if not None),
+`~/.mqttsec.cfg' , `mqttsec.cfg' in current dir,
+the file name given by the environment variable PAT_CONFIG,
+(see constants DEFAULT_CONFIG_FILE, DEFAULT_HOME_CONFIG_FILE, CONFIG_VAR).
+
+The content should be as follows:
+'[broker]
+address = mybroker.example.com
+port = 8883
+
+[credential]
+user = AliceBob
+password = 123456789
+'
+
+or
+
+'
+[broker]
+address = mybroker.example.com
+port = 8883
+
+[tls]
+ca_certs = ~/mqttsec-config/ca.crt
+certfile = ~/mqttsec-config/client.crt
+keyfile = ~/mqttsec-config/client.key
+'
+"""
+    result = {}
+
+    config = ConfigParser.RawConfigParser()
+    mqttsec_config_files = []
+    if mqttsec_file_name is not None:
+        mqttsec_config_files.append(mqttsec_file_name)
+    mqttsec_config_files.extend([os.path.expanduser(DEFAULT_HOME_CONFIG_FILE),
+                       DEFAULT_CONFIG_FILE])
+    if CONFIG_VAR in os.environ:
+        logger.debug("using $MQTTSEC_CONFIG: %s" % os.environ[CONFIG_VAR])
+        mqttsec_config_files.append(os.environ[CONFIG_VAR])
+    present_files = config.read(mqttsec_config_files)
+
+    if config.has_option("broker", "address"):
+        result["broker"] = config.get("broker", "address")
+    if config.has_option("broker", "port"):
+        result["port"] = config.getint("broker", "port")
+    else: result["port"] = DEFAULT_SECURE_MQTT_PORT
+
+    if config.has_section("tls"):
+        # Note: no longer used for now:
+        tls_info = {
+            name: os.path.expanduser(config.get("tls", name))
+            for name in ["ca_certs", "certfile", "keyfile"]
+        }
+        tls_info["cert_reqs"] = ssl.CERT_REQUIRED
+        tls_info["tls_version"] = ssl.PROTOCOL_TLSv1_2
+        result["tls_info"] = tls_info
+
+    if config.has_section("credential"):
+        result["user"] = config.get("credential", "user")
+        result["password"] = config.get("credential", "password")
+
+    return result
 
 
 def topic_lazyformat(topic, **kwargs):
@@ -113,7 +187,10 @@ class MQTTAgentArgumentParser(argparse.ArgumentParser):
         """Add common agents arguments to parser."""
         self.add_argument('--prefix', help='Topics prefix', default='')
         self.add_argument('--broker-port', help='Broker port')
-        self.add_argument('broker', help='Broker address')
+        self.add_argument('broker', help='Broker address',
+                          nargs='?', default=None)
+        self.add_argument('--config', help='Configuration for mqtt broker',
+                          default=None)
 
     def add_agenttopic_argument(self):
         """Add common agents arguments to parser."""
