@@ -28,7 +28,7 @@ def get_default_mqttsec_config(mqttsec_file_name=None):
 
 The following files are read: `mqttsec_file_name' argument (if not None),
 `~/.mqttsec.cfg' , `mqttsec.cfg' in current dir,
-the file name given by the environment variable PAT_CONFIG,
+the file name given by the environment variable MQTTSEC_CONFIG,
 (see constants DEFAULT_CONFIG_FILE, DEFAULT_HOME_CONFIG_FILE, CONFIG_VAR).
 
 The content should be as follows:
