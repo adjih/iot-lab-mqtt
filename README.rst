@@ -113,9 +113,9 @@ MQTT configuration through configuration file
 
 By default, the following files are read:
 
-* any argument given to option  ``--config <file name>``,
+* the configuration file name given to option  ``--config <file name>``
 
-* or if that option is not used, but the ``--read-config`` flag is used instead, then the following files are parsed (if they exist), and in this order: ``~/.mqttsec.cfg`` , ``mqttsec.cfg`` current dir, and the file name given by the environment variable ``MQTTSEC_CONFIG``, if it is set.
+* or if that option is not present, but the ``--read-config`` flag is used instead, then the following files are parsed (if they exist), and in this order: ``~/.mqttsec.cfg`` , ``mqttsec.cfg`` in the current dir, and the file name given by the environment variable ``MQTTSEC_CONFIG`` if it is set.
 
 The content should be as follows::
 
