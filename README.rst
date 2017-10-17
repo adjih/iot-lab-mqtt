@@ -108,10 +108,30 @@ Arguments
 
 You can get the list of arguments with ``--help`` option.
 
-Global MQTT configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^
+MQTT configuration through configuration file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Broker address, url of the MQTT server::
+By default, the following files are read:
+
+* the configuration file name given to option  ``--config <file name>``
+
+* or if that option is not present, but the ``--read-config`` flag is used instead, then the following files are parsed (if they exist), and in this order: ``~/.mqttsec.cfg`` , ``mqttsec.cfg`` in the current dir, and the file name given by the environment variable ``MQTTSEC_CONFIG`` if it is set.
+
+The content should be as follows::
+
+   [broker]
+   address = mybroker.example.com
+   port = 8883
+
+   [credential]
+   user = AliceBob
+   password = 123456789
+
+
+Alternate global MQTT configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Broker address, url of the MQTT server, can also be given on command line::
 
    broker
 
